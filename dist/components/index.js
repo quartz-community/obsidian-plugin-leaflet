@@ -1,12 +1,8 @@
 import { createRequire } from 'module';
+import { classNames } from '@quartz-community/utils/lang';
 import { jsx } from 'preact/jsx-runtime';
 
 createRequire(import.meta.url);
-
-// src/util/lang.ts
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
 // src/components/styles/example.scss
 var example_default = ".example-component {\n  padding: 8px 16px;\n  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n  color: white;\n  border-radius: 4px;\n  font-weight: 600;\n  display: inline-block;\n}";
