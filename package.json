@@ -1,5 +1,5 @@
 {
-  "name": "@quartz-community/plugin-template",
+  "name": "@quartz-community/obsidian-plugin-leaflet",
   "version": "0.1.0",
   "description": "Template repository for Quartz community plugins.",
   "type": "module",
