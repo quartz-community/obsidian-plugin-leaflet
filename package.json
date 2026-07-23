@@ -51,7 +51,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint && npm run format && npm run test",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release": "npm run build && changeset publish"
   },
   "peerDependencies": {
     "@jackyzha0/quartz": "^4.5.2",
@@ -96,7 +97,8 @@
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0",
     "vfile": "^6.0.3",
-    "vitest": "^2.1.9"
+    "vitest": "^2.1.9",
+    "@changesets/cli": "^2.29.2"
   },
   "quartz": {
     "name": "plugin-template",
