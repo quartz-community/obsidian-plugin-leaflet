@@ -8,7 +8,7 @@
   "homepage": "https://quartz.jzhao.xyz",
   "repository": {
     "type": "git",
-    "url": "https://github.com/quartz-community/plugin-template"
+    "url": "https://github.com/quartz-community/obsidian-plugin-leaflet"
   },
   "keywords": [
     "quartz",
@@ -52,10 +52,11 @@
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint && npm run format && npm run test",
     "prepublishOnly": "npm run build",
-    "release": "npm run build && changeset publish"
+    "release": "npm run build && changeset publish",
+    "version-packages": "changeset version && npm install --package-lock-only --ignore-scripts --no-audit --no-fund"
   },
   "peerDependencies": {
-    "@jackyzha0/quartz": "^4.5.2",
+    "@jackyzha0/quartz": "^5.0.0",
     "preact": "^10.0.0",
     "vfile": "^6.0.3"
   },
