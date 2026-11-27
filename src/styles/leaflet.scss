@@ -1,0 +1,78 @@
+// Leaflet's own stylesheet is loaded with the map (see leaflet.inline.ts); these rules keep
+// Quartz's page styles out of the map and theme its controls.
+.leaflet-map {
+  max-width: 100%;
+  margin: 1rem 0;
+
+  .leaflet-map-canvas {
+    width: 100%;
+    border: 1px solid var(--lightgray);
+    border-radius: 5px;
+    background: var(--light);
+    z-index: 0; // keep Leaflet's panes (z-index 400+) below Quartz's popovers and menus
+  }
+
+  .leaflet-container {
+    font-family: var(--bodyFont, inherit);
+    font-size: 0.8rem;
+
+    img {
+      margin: 0;
+      border-radius: 0;
+      max-width: none;
+      content-visibility: visible;
+    }
+
+    a {
+      background-color: transparent;
+    }
+  }
+
+  .leaflet-map-marker {
+    background: none;
+    border: none;
+
+    svg {
+      display: block;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+    }
+  }
+
+  .leaflet-map-marker-link {
+    cursor: pointer;
+  }
+
+  .leaflet-map-tooltip {
+    max-width: 16rem;
+    white-space: normal;
+  }
+
+  .leaflet-bar a,
+  .leaflet-control-layers {
+    color: var(--darkgray);
+    background-color: var(--light);
+    border-color: var(--lightgray);
+  }
+
+  .leaflet-bar a:hover,
+  .leaflet-bar a:focus {
+    background-color: var(--highlight);
+  }
+
+  .leaflet-control-layers label {
+    margin: 0;
+  }
+
+  .leaflet-map-error,
+  .leaflet-map-warnings {
+    color: var(--darkgray);
+    font-size: 0.85rem;
+    margin: 0.5rem 0 0;
+  }
+}
+
+// `darkMode: true` (Obsidian Leaflet's filter), only while the site is dark: a Quartz site
+// switches between light and dark, where Obsidian's dark theme is always on.
+:root[saved-theme="dark"] .leaflet-map .leaflet-map-dark {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg);
+}

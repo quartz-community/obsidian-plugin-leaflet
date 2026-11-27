@@ -1,91 +1,48 @@
 import path from "node:path";
-import fs from "node:fs/promises";
+import { promises as fs } from "node:fs";
 import type {
-  QuartzEmitterPlugin,
-  ProcessedContent,
   BuildCtx,
   FilePath,
-  FullSlug,
+  ProcessedContent,
+  QuartzEmitterPlugin,
 } from "@quartz-community/types";
-import type { ExampleEmitterOptions } from "./types";
-
-const defaultOptions: ExampleEmitterOptions = {
-  manifestSlug: "plugin-manifest",
-  includeFrontmatter: true,
-  metadata: {
-    generator: "Quartz Plugin Template",
-  },
-};
-
-const joinSegments = (...segments: string[]) =>
-  segments
-    .filter((segment) => segment.length > 0)
-    .join("/")
-    .replace(/\/+/g, "/") as FilePath;
-
-const writeFile = async (
-  outputDir: string,
-  slug: FullSlug,
-  ext: `.${string}` | "",
-  content: string,
-) => {
-  const outputPath = joinSegments(outputDir, `${slug}${ext}`) as FilePath;
-  await fs.mkdir(path.dirname(outputPath), { recursive: true });
-  await fs.writeFile(outputPath, content);
-  return outputPath;
-};
 
 /**
- * Example emitter that writes a JSON manifest of content metadata.
+ * Copies the images of image maps to the output, at the same path below the site root as in the
+ * content directory (the page's map config points there).
  */
-export const ExampleEmitter: QuartzEmitterPlugin<Partial<ExampleEmitterOptions>> = (
-  userOptions?: Partial<ExampleEmitterOptions>,
-) => {
-  const options = { ...defaultOptions, ...userOptions };
-  const emitManifest = async (ctx: BuildCtx, content: ProcessedContent[]) => {
-    const manifest = {
-      ...options.metadata,
-      generatedAt: new Date().toISOString(),
-      pages: content.map(([_tree, vfile]) => {
-        const frontmatter = (vfile.data?.frontmatter ?? {}) as {
-          title?: string;
-          tags?: string[];
-          [key: string]: unknown;
-        };
-        return {
-          slug: vfile.data?.slug ?? null,
-          title: frontmatter.title ?? null,
-          tags: frontmatter.tags ?? null,
-          filePath: vfile.data?.filePath ?? null,
-          frontmatter: options.includeFrontmatter ? frontmatter : undefined,
-        };
-      }),
-    };
-
-    let json = `${JSON.stringify(manifest, null, 2)}\n`;
-    if (options.transformManifest) {
-      json = options.transformManifest(json);
+export const LeafletEmitter: QuartzEmitterPlugin = () => {
+  const emit = async (ctx: BuildCtx, content: ProcessedContent[]): Promise<FilePath[]> => {
+    const outputs: FilePath[] = [];
+    const seen = new Set<string>();
+    const outputRoot = path.resolve(ctx.argv.output);
+    for (const [, vfile] of content) {
+      for (const map of vfile.data.leafletMaps ?? []) {
+        for (const image of map.images) {
+          if (seen.has(image.sourcePath)) continue;
+          seen.add(image.sourcePath);
+          const dest = path.resolve(outputRoot, image.destRel);
+          if (path.relative(outputRoot, dest).startsWith("..")) continue;
+          try {
+            await fs.mkdir(path.dirname(dest), { recursive: true });
+            await fs.copyFile(image.sourcePath, dest);
+            outputs.push(dest as FilePath);
+          } catch {
+            continue;
+          }
+        }
+      }
     }
-
-    const output = await writeFile(
-      ctx.argv.output,
-      options.manifestSlug as FullSlug,
-      ".json",
-      json,
-    );
-    return [output];
+    return outputs;
   };
 
   return {
-    name: "ExampleEmitter",
-    async emit(ctx, content, _resources) {
-      return emitManifest(ctx, content);
+    name: "ObsidianLeafletImages",
+    async emit(ctx, content) {
+      return emit(ctx, content);
     },
-    async *partialEmit(ctx, content, _resources, _changeEvents) {
-      const outputPaths = await emitManifest(ctx, content);
-      for (const outputPath of outputPaths) {
-        yield outputPath;
-      }
+    async *partialEmit(ctx, content) {
+      for (const p of await emit(ctx, content)) yield p;
     },
   };
 };
